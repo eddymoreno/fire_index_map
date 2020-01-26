@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:tamu_hack_2020/fire_index_bloc.dart';
 
 void main() => runApp(MyApp());
@@ -47,26 +46,61 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   final fireIndexBloc = FireIndexBloc();
 
+  final _latTextFieldController = TextEditingController();
+  final _lonTextFieldController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _latTextFieldController.text = '-30.9546892';
+    _lonTextFieldController.text = '121.164108';
+  }
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      appBar: AppBar(title: Text("Fire Index"),),
+      appBar: AppBar(
+        title: Text("Fire Index"),
+      ),
       body: StreamBuilder(
         stream: fireIndexBloc.fireIndexStream,
-        builder: (BuildContext context, AsyncSnapshot<double> snapshot){
-          if(snapshot.hasData){
+        builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
+          if (snapshot.hasData) {
             // here we would render the google map with the fire index
-          }
-          else{
-            // you request a fire index by calling 
+            return Center(
+              child: Text(
+                  "Fire index for lat:${_latTextFieldController.text}, lon:${_lonTextFieldController.text} is \n fire-index: ${snapshot.data}"),
+            );
+          } else {
+            // you request a fire index by calling
             // fireIndexBloc.requestFireIndex(lat, lon)
+            return Column(
+              children: <Widget>[
+                Text('Enter longitude:'),
+                TextField(
+                  controller: _lonTextFieldController,
+                ),
+                Text('Enter latitudes:'),
+                TextField(
+                  controller: _latTextFieldController,
+                ),
+                FlatButton(
+                  child: Text('find fire index'),
+                  color: Colors.lightBlue,
+                  onPressed: () {
+                    double lon = double.parse(_lonTextFieldController.text);
+                    double lat = double.parse(_latTextFieldController.text);
+
+                    fireIndexBloc.requestFireIndex(lat, lon);
+                  },
+                )
+              ],
+            );
           }
         },
       ),
     );
   }
-
 }
